@@ -12,34 +12,28 @@ def random_teams(team_dictionary, number_members='max'):
             dictionary of teams as keys and team members in string arrays
         number_members (int): number of members to be selected. Use 0 if only team shuffle desired
     """
-    # count number of members for each team
-    number_members_per_team = team_dictionary.copy()
-    for i in number_members_per_team:
-        number_members_per_team[i] = len(number_members_per_team[i])
-
-    # shuffle members in team
-    shuffled_team_dictionary = team_dictionary
-    if number_members == 'max':
-        for i in shuffled_team_dictionary:
-            shuffled_team_dictionary[i] = random.sample(shuffled_team_dictionary[i],
-                                                        number_members_per_team[i])
-    elif number_members == 0:
-        shuffled_teams = random.sample(team_dictionary.keys(), len(team_dictionary.keys()))
-        print_team_list(shuffled_teams)
-        return
-    else:
-        for i in shuffled_team_dictionary:
-            current_number_members = number_members_per_team[i] if \
-                number_members_per_team[i] < number_members else number_members
-            shuffled_team_dictionary[i] = random.sample(shuffled_team_dictionary[i],
-                                                        current_number_members)
-
     # shuffle teams
     shuffled_teams = random.sample(team_dictionary.keys(), len(team_dictionary.keys()))
 
-    # print all pretty
-    print_team_member_list(shuffled_team_dictionary, shuffled_teams)
+    # check if members are to be shuffled. if so, shuffle and print teams + members; else teams only
+    if number_members == 0:
+        print_team_list(shuffled_teams)
+    else:
+        # shuffle members in team
+        shuffled_team_dictionary = {}
+        for i in team_dictionary:
+            current_team_size = len(team_dictionary[i])
+            if number_members == 'max':
+                shuffled_team_dictionary[i] = random.sample(team_dictionary[i], current_team_size)
+            else:
+                if number_members > current_team_size:
+                    shuffled_team_dictionary[i] = random.sample(team_dictionary[i],
+                                                                current_team_size)
+                else:
+                    shuffled_team_dictionary[i] = random.sample(team_dictionary[i], number_members)
 
+        # print pretty
+        print_team_member_list(shuffled_team_dictionary, shuffled_teams)
 
 def print_team_list(team_ordering):
     """
@@ -49,27 +43,28 @@ def print_team_list(team_ordering):
         team_ordering (list of strings): list of team names as strings to print
     """
     # get max length of team name
-    max_teamname_length = max([len(i) for i in team_ordering]) + 2
+    team_name_lengths = {key: len(key) for key in team_ordering}
+    max_team_name_length = max(team_name_lengths.values()) + 2 # add 2 for | on either side
 
-    # first line of -
-    print '-' * (max_teamname_length + 2)
+    # first line of - (add 2 for one additional space before/after content)
+    print '-' * (max_team_name_length + 2)
 
     # content
-    for i in xrange(len(team_ordering)):
-        current_team_length = len(team_ordering[i])
-        padding = (max_teamname_length - current_team_length) / 2.0
+    for i in team_ordering:
+        current_team_length = team_name_lengths[i]
+        padding = (max_team_name_length - current_team_length) / 2.0
 
-        # pad front of string
-        print '|' + (' ' * int(math.floor(padding) - 1)),
+        # create front padding
+        pad_front = '|' + (' ' * int(math.floor(padding)))
 
-        # print team
-        print team_ordering[i],
+        # create back padding
+        pad_back = (' ' * int(math.ceil(padding))) + '|'
 
-        # pad end of string
-        print (" " * int(math.ceil(padding) - 1)) + '|'
+        # print content
+        print pad_front + i + pad_back
 
-        # print separating -
-        print '-' * (max_teamname_length + 2)
+        # print separating - (add 2 for one additional space before/after content)
+        print '-' * (max_team_name_length + 2)
 
 def print_team_member_list(team_dictionary, ordering):
     """
@@ -79,64 +74,44 @@ def print_team_member_list(team_dictionary, ordering):
         team_dictionary (dict of strings): dict of team names with shuffled team members
         ordering (list of strings): list of team names as strings to print in order
     """
-    # get max length of team name
-    max_teamname_length = max([len(i) for i in ordering]) + 2
-
-    # get max number of members picked
-    max_members_picked = max([len(team_dictionary[x]) for x in team_dictionary])
-
-    # get max length of member listing
-    max_member_listing_length = 0
-    for i in team_dictionary:
-        max_member_listing_length = max(max_member_listing_length,
-                                        reduce(lambda x, y: x + y,
-                                               [len(x) for x in team_dictionary[i]]) +
-                                        (len(team_dictionary[i]) - 1) * 5)
-
-    # get total line length
-    total_line_length = max_teamname_length + max_member_listing_length
-
-    # first line of -
-    print '-' * (total_line_length + 4)
-
-    # content
+    # create team strings
+    team_strings = []
     for i in ordering:
-        current_team_length = len(i)
-        current_member_selected_length = len(' --> '.join(team_dictionary[i]))
+        team_strings.append(i + ": " + ' --> '.join(team_dictionary[i]))
 
-        padding = (total_line_length - current_team_length - current_member_selected_length) / 2.0
+    # get max length of team string
+    team_string_lengths = {key: len(key) for key in team_strings}
+    max_team_string_length = max(team_string_lengths.values())
 
-        # pad front of string
-        print '|' + (' ' * int(math.floor(padding) - 1)),
+    # create total line length (take max length and add 2 for | on either side)
+    total_line_length = max_team_string_length + 2
 
-        # print team
-        print i + ':',
+    # first line of - (add 2 for one additional space before/after content)
+    print '-' * (total_line_length + 2)
 
-        # print selected members, if any
-        print ' --> '.join(team_dictionary[i]),
+    # print content
+    for i in team_strings:
+        padding = (total_line_length - team_string_lengths[i]) / 2.0
 
-        # pad end of string
-        print (" " * int(math.ceil(padding) - 1)) + '|'
+        # create front padding
+        pad_front = '|' + (' ' * int(math.floor(padding)))
 
-        # print separating -
-        print '-' * (total_line_length + 4)
+        # create back padding
+        pad_back = (' ' * int(math.ceil(padding))) + '|'
+
+        # print content
+        print pad_front + i + pad_back
+
+        # print separating - (add 2 for one additional space before/after content)
+        print '-' * (total_line_length + 2)
 
 if __name__ == '__main__':
-    # teams = {
-    #     'BAIY Watch': ['Allison', 'Bodhisattva', 'Isabel', 'Yoko'],
-    #     'Body + Soul': ['Armaan', 'Eduardo', 'Nadia', 'Philip'],
-    #     'HCI Xiaozu': ['Jiawen', 'Jingming', 'Yang', 'Yuling'],
-    #     'Saturn': ['Fei', 'Qian', 'Shiqi', 'Xiaofei'],
-    #     'The Ballers': ['Joseph', 'Pawel', 'Xu', 'Yimin']
-    # }
-    #
-
     teams = {
-        'BAIY Watch': ['Allison', 'Yoko'],
+        'BAIY Watch': ['Allison', 'Bodhisattva', 'Isabel', 'Yoko'],
         'Body + Soul': ['Armaan', 'Eduardo', 'Nadia', 'Philip'],
-        'HCI Xiaozu': ['Jiawen', 'Yang', 'Yuling'],
+        'HCI Xiaozu': ['Jiawen', 'Jingming', 'Yang', 'Yuling'],
         'Saturn': ['Fei', 'Qian', 'Shiqi', 'Xiaofei'],
-        'The Ballers': ['Joseph']
+        'The Ballers': ['Joseph', 'Pawel', 'Xu', 'Yimin']
     }
 
-    random_teams(teams, 3)
+    random_teams(teams, 0)
