@@ -2,6 +2,7 @@
 
 import random
 import math
+import sys
 
 def random_teams(team_dictionary, number_members='max'):
     """
@@ -113,5 +114,9 @@ if __name__ == '__main__':
         'Saturn': ['Fei', 'Qian', 'Shiqi', 'Xiaofei'],
         'The Ballers': ['Joseph', 'Pawel', 'Xu', 'Yimin']
     }
-
-    random_teams(teams, 0)
+    try:
+        random_teams(teams, int(sys.argv[1]))
+    except IndexError:
+        random_teams(teams)
+    except ValueError:
+        print "Error: argument must be an integer"
