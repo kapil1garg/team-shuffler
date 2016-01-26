@@ -1,4 +1,4 @@
-# team-shuffler
+# Team Shuffler
 A simple team/member shuffler for when no one wants to volunteer...
 
 ## Usage
