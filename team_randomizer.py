@@ -78,7 +78,7 @@ def print_team_member_list(team_dictionary, ordering):
     # create team strings
     team_strings = []
     for i in ordering:
-        team_strings.append(i + ": " + ' --> '.join(team_dictionary[i]))
+        team_strings.append(i + " --> " + ', '.join(team_dictionary[i]))
 
     # get max length of team string
     team_string_lengths = {key: len(key) for key in team_strings}
@@ -108,7 +108,7 @@ def print_team_member_list(team_dictionary, ordering):
 
 if __name__ == '__main__':
     teams = {
-        'BAIY Watch': ['Allison', 'Bodhisattva', 'Isabel', 'Yoko'],
+        'BAIY Watch': ['Allison', 'Bodhisattva', 'Isabel'], # not including Yoko
         'Body + Soul': ['Armaan', 'Eduardo', 'Nadia', 'Philip'],
         'HCI Xiaozu': ['Jiawen', 'Jingming', 'Yang', 'Yuling'],
         'Saturn': ['Fei', 'Qian', 'Shiqi', 'Xiaofei'],
